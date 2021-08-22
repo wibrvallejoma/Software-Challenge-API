@@ -18,6 +18,7 @@ from software_challenge_api.users.models import User
 
 # Utilities
 import jwt
+from rest_framework.permissions import AllowAny
 
 
 class UserModelSerializer(serializers.ModelSerializer):
@@ -98,6 +99,11 @@ class UserLoginSerializer(serializers.Serializer):
         self.context['user'] = user
 
         return data
+
+    def get_permissions(self):
+        """Assign permissions based on actions."""
+        permissions = [AllowAny]
+        return [permission() for permission in permissions]
 
     def create(self, data):
         """Create token for identificate the user and update the last login date"""
