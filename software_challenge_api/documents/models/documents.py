@@ -28,6 +28,9 @@ class Document(BaseModel):
         ('obsolete', 'obsolete')
     ]
 
-    file = models.FileField(upload_to=get_upload_path)
-    state = models.CharField(max_length=10, choices=STATE_CHOICES, default='active')
-    childs = models.ManyToManyField('documents.Document', blank=True, null=True, related_name='parent')
+    name = models.CharField(max_length=255, blank=True, null=True)
+    file = models.FileField(upload_to=get_upload_path, blank=True, null=True)
+    state = models.CharField(max_length=25, choices=STATE_CHOICES, default='active')
+    file_type = models.CharField(max_length=25, choices=FILE_CHOICES, default='file')
+    childs = models.ManyToManyField('documents.Document', related_name='doc_childs', blank=True, null=True)
+    parent = models.ForeignKey('documents.Document', blank=True, null=True, on_delete=models.CASCADE, related_name='doc_parent')
