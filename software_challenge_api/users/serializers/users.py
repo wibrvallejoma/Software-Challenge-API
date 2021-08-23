@@ -100,11 +100,6 @@ class UserLoginSerializer(serializers.Serializer):
 
         return data
 
-    def get_permissions(self):
-        """Assign permissions based on actions."""
-        permissions = [AllowAny]
-        return [permission() for permission in permissions]
-
     def create(self, data):
         """Create token for identificate the user and update the last login date"""
         token, created_token = Token.objects.get_or_create(user=self.context['user'])
