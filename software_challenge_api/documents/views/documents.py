@@ -8,6 +8,15 @@ from rest_framework.generics import get_object_or_404
 from django.db.models import Q
 from django.core.files.storage import FileSystemStorage
 from rest_framework import serializers
+
+from django.db import IntegrityError
+from django.conf import settings
+from django.contrib.auth import authenticate, password_validation
+from django.core.mail import EmailMultiAlternatives
+from django.core.validators import RegexValidator
+from django.template.loader import render_to_string
+from django.utils import timezone
+
 # Serializers
 from software_challenge_api.documents.serializers import DocumentModelSerializer
 
@@ -45,7 +54,7 @@ class DocumentViewSet(ModelViewSet):
         child_instance.state = 'obsolete'
         child_instance.name += '_OBSOLETE'
 
-        new_parent_name = parent_name + '_OBSOLETE'
+        # new_parent_name = parent_name + '_OBSOLETE'
 
         new_name = child_instance.file.name.split('.')
         new_path = new_name[0] + '_OBSOLETE.' + new_name[-1]
@@ -57,7 +66,6 @@ class DocumentViewSet(ModelViewSet):
         return child_instance
 
     def perform_destroy(self, instance):
-        # TODO: Get childs and change state to Obsolete
         instance.state = 'obsolete'
         original_name = instance.name
         instance.name += '_OBSOLETE'
@@ -75,6 +83,7 @@ class DocumentViewSet(ModelViewSet):
             for child in childs:
                 child = self.obsolete_document(original_name, child)
                 child.save()
+        self.send_delete_notification_email(instance.owner, instance.name)
         instance.save()
 
     def retrieve(self, request, *args, **kwargs):
@@ -91,3 +100,16 @@ class DocumentViewSet(ModelViewSet):
         }
         response.data = data
         return response
+
+    def send_delete_notification_email(self, user, document_name):
+        """Send notification to given user."""
+        subject = f'Hello @{user.username}! Your files are now obsolete.'
+        from_email = 'Software Challenge <noreply@api.software_challenge.com>'
+        content = render_to_string(
+            'emails/users/obsolete_document.html',
+            {'document_name': document_name, 'user': user}
+        )
+
+        msg = EmailMultiAlternatives(subject, content, from_email, [user.email])
+        msg.attach_alternative(content, "text/html")
+        msg.send()

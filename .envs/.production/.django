@@ -13,10 +13,10 @@ DJANGO_SECURE_SSL_REDIRECT=False
 
 # Email
 # ------------------------------------------------------------------------------
-DJANGO_SERVER_EMAIL=
+DJANGO_SERVER_EMAIL=software_challenge@localhost.com
 
-MAILGUN_API_KEY=
-MAILGUN_DOMAIN=
+MAILGUN_API_KEY=e078e6ebd17ec7092ba1ea7c3f563bde-fb87af35-95fc87ef
+MAILGUN_DOMAIN=https://api.mailgun.net/v3/sandbox42ba6a51a133404c894be87d26c9998c.mailgun.org/messages
 
 
 # django-allauth
